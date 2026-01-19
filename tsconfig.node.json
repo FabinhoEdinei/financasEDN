@@ -1,0 +1,14 @@
+import type { Config } from 'typescript'
+
+const config: Config = {
+  compilerOptions: {
+    composite: true,
+    skipLibCheck: true,
+    module: 'ESNext',
+    moduleResolution: 'bundler',
+    allowSyntheticDefaultImports: true,
+  },
+  include: ['vite.config.ts'],
+}
+
+export default config

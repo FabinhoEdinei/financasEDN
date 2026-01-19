@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  transactions    Transaction[]
+  accounts        BankAccount[]
+  investments     Investment[]
+  expenseCategories ExpenseCategory[]
+}
+
+model Transaction {
+  id        String     @id @default(cuid())
+  type      String     // "salary", "house_expense", "credit_card", "investment"
+  category  String
+  amount    Float
+  description String
+  date      DateTime   @default(now())
+  
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expenseCategory   ExpenseCategory? @relation(fields: [expenseCategoryId], references: [id])
+  expenseCategoryId String?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model BankAccount {
+  id        String     @id @default(cuid())
+  name      String     // Nome editável (ex: "Conta do Salário", "Poupança")
+  balance   Float      @default(0)
+  type      String     // "checking", "savings"
+  
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model Investment {
+  id        String     @id @default(cuid())
+  name      String     // Ex: "Ações XPTO", "Tesouro Direto"
+  type      String     // "stocks", "bonds", "crypto", "funds"
+  amount    Float
+  currentValue Float
+  roi       Float      @default(0) // Return on Investment
+  
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model ExpenseCategory {
+  id        String     @id @default(cuid())
+  name      String
+  color     String     @default("#c800ff")
+  
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
